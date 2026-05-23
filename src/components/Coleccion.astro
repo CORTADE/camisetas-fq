@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ProductCard from './ProductCard.astro';
+
+type Camiseta = CollectionEntry<'camisetas'>;
+type Contacto = Extract<CollectionEntry<'settings'>['data'], { tipo: 'contacto' }>;
+
+export interface Props {
+  camisetas: Camiseta[];
+  templates: Contacto;
+  whatsapp: string;
+}
+
+const { camisetas, templates, whatsapp } = Astro.props;
+
+const destacadas = camisetas
+  .filter(c => c.data.destacada)
+  .sort((a, b) => a.data.orden - b.data.orden);
+---
+
+<section class="section" id="coleccion" style="padding-top:0">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div>
+        <div class="section-eyebrow">COLECCIÓN DESTACADA</div>
+        <h2 class="section-title">Las piezas que <em>todos</em><br>quieren tener</h2>
+      </div>
+    </div>
+    <div class="collection">
+      {destacadas.map(c => <ProductCard camiseta={c} templates={templates} whatsapp={whatsapp} />)}
+    </div>
+  </div>
+</section>
