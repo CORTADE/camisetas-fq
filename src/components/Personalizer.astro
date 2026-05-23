@@ -1,0 +1,74 @@
+---
+import type { CollectionEntry } from 'astro:content';
+type Inicio = Extract<CollectionEntry<'settings'>['data'], { tipo: 'inicio' }>;
+type Contacto = Extract<CollectionEntry<'settings'>['data'], { tipo: 'contacto' }>;
+
+export interface Props {
+  data: Inicio;
+  templates: Contacto;
+  whatsapp: string;
+}
+
+const { data, templates, whatsapp } = Astro.props;
+---
+
+<section class="section" id="personaliza"
+         data-whatsapp={whatsapp}
+         data-template={templates.template_personalizacion}>
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div>
+        <div class="section-eyebrow">PERSONALIZACIÓN PRO</div>
+        <h2 class="section-title">Tu <em>nombre</em>, tu dorsal,<br>tu historia.</h2>
+      </div>
+    </div>
+    <div class="personalizer reveal">
+      <div class="pers-preview">
+        <div class="pers-jersey">
+          <div class="pers-name" id="pname">{data.personalizer_nombre_default}</div>
+          <div class="pers-num" id="pnum">{data.personalizer_dorsal_default}</div>
+        </div>
+      </div>
+      <div class="pers-controls">
+        <div class="pers-eyebrow">PRUÉBALO EN VIVO</div>
+        <h3 class="pers-title">{data.personalizer_titulo}</h3>
+        <div class="pers-field">
+          <label class="pers-label" for="iname">Nombre en la espalda</label>
+          <input type="text" class="pers-input" id="iname" value={data.personalizer_nombre_default} maxlength="12" />
+        </div>
+        <div class="pers-row">
+          <div class="pers-field">
+            <label class="pers-label" for="inum">Dorsal</label>
+            <input type="text" class="pers-input" id="inum" value={data.personalizer_dorsal_default} maxlength="2" />
+          </div>
+          <div class="pers-field">
+            <label class="pers-label" for="italla">Talla</label>
+            <select class="pers-input" id="italla">
+              <option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option>
+            </select>
+          </div>
+        </div>
+        <button class="pers-add" type="button" id="persAdd">Añadir personalización +{data.personalizer_precio_extra}€ →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const inputName = document.getElementById('iname') as HTMLInputElement;
+  const inputNum = document.getElementById('inum') as HTMLInputElement;
+  const displayName = document.getElementById('pname') as HTMLElement;
+  const displayNum = document.getElementById('pnum') as HTMLElement;
+
+  if (inputName && displayName) {
+    inputName.addEventListener('input', (e) => {
+      displayName.textContent = (e.target as HTMLInputElement).value.toUpperCase();
+    });
+  }
+
+  if (inputNum && displayNum) {
+    inputNum.addEventListener('input', (e) => {
+      displayNum.textContent = (e.target as HTMLInputElement).value;
+    });
+  }
+</script>
