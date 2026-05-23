@@ -1,0 +1,17 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { buildWaUrl } from '../lib/whatsapp';
+type Inicio = Extract<CollectionEntry<'settings'>['data'], { tipo: 'inicio' }>;
+export interface Props { data: Inicio; whatsapp: string; templateGenerico: string }
+const { data, whatsapp, templateGenerico } = Astro.props;
+const waHref = buildWaUrl(whatsapp, templateGenerico);
+---
+<section class="cinematic reveal">
+  <div class="cinematic-bg" style={`background-image:url('${data.cinematic_imagen}')`}></div>
+  <div class="cinematic-overlay"></div>
+  <div class="cinematic-inner">
+    <h2 class="cinematic-title">{data.cinematic_titulo_linea1}<br />{data.cinematic_titulo_linea2}</h2>
+    <p class="cinematic-sub">{data.cinematic_subtitulo}</p>
+    <a href={waHref} target="_blank" rel="noopener" class="btn btn-gold">{data.cinematic_cta_texto} <span class="arrow">→</span></a>
+  </div>
+</section>
