@@ -1,0 +1,23 @@
+---
+export interface Props { steps: { numero: string; titulo: string; texto: string }[] }
+const { steps } = Astro.props;
+---
+<section class="section" style="background:var(--bg-2)">
+  <div class="section-inner">
+    <div class="section-head reveal" style="justify-content:center;text-align:center;margin-bottom:80px">
+      <div>
+        <div class="section-eyebrow" style="justify-content:center">CÓMO COMPRAR</div>
+        <h2 class="section-title">Tres pasos. <em>Cero</em> complicaciones.</h2>
+      </div>
+    </div>
+    <div class="steps">
+      {steps.map(s => (
+        <div class="step reveal">
+          <div class="step-num">{s.numero}</div>
+          <div class="step-title">{s.titulo}</div>
+          <p class="step-text" set:html={s.texto.replace('WhatsApp', '<span class="wa">WhatsApp</span>')} />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
