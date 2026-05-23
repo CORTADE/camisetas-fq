@@ -2,8 +2,10 @@ backend:
   name: github
   repo: CORTADE/camisetas-fq
   branch: main
-  base_url: https://sveltia-cms-auth.netlify.app
-  auth_endpoint: oauth
+  # Auth: editor uses "Sign In with Token" button on /admin login screen (Sveltia
+  # guides them through creating a GitHub PAT). No OAuth proxy needed.
+  # See docs/superpowers/runbooks/2026-05-23-upgrade-to-cloudflare-oauth.md
+  # for the future upgrade path to "Sign In with GitHub" (1-click).
 
 media_folder: public/uploads
 public_folder: /uploads
