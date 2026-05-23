@@ -1,0 +1,30 @@
+---
+export interface Props {
+  vendidos: { numero: string; comprador: string }[];
+  reservados: string[];
+}
+const { vendidos, reservados } = Astro.props;
+const soldMap = new Map(vendidos.map(v => [v.numero, v.comprador]));
+const reservedSet = new Set(reservados);
+const cells = Array.from({ length: 100 }, (_, i) => {
+  const num = String(i).padStart(2, '0');
+  if (soldMap.has(num)) return { num, kind: 'sold', buyer: soldMap.get(num)! };
+  if (reservedSet.has(num)) return { num, kind: 'reserved' as const };
+  return { num, kind: 'avail' as const };
+});
+---
+<div class="grid-100" id="grid100">
+  {cells.map(c => {
+    if (c.kind === 'sold') return (
+      <div class="cell sold" data-num={c.num} title={`Vendido a ${c.buyer}`}>
+        <span>{c.num}</span><span class="cell-buyer">{c.buyer}</span>
+      </div>
+    );
+    if (c.kind === 'reserved') return (
+      <div class="cell reserved" data-num={c.num} title="Reservado · pendiente de pago">{c.num}</div>
+    );
+    return (
+      <div class="cell avail" data-num={c.num} title="Disponible · click para elegir">{c.num}</div>
+    );
+  })}
+</div>
