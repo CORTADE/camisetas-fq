@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from 'astro:content';
+type Inicio = Extract<CollectionEntry<'settings'>['data'], { tipo: 'inicio' }>;
+export interface Props { data: Inicio; whatsapp: string; templateGenerico: string }
+import { buildWaUrl } from '../lib/whatsapp';
+const { data, whatsapp, templateGenerico } = Astro.props;
+const waHref = buildWaUrl(whatsapp, templateGenerico);
+
+// Split línea 3 to wrap the golden word in <span class="gold">
+const linea3Full = data.hero_titulo_linea3;
+const golden = data.hero_titulo_linea3_palabra_dorada;
+const linea3Before = linea3Full.replace(golden, '').trim();
+---
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">{data.hero_eyebrow}</div>
+      <h1>
+        <span>{data.hero_titulo_linea1}</span>
+        <span><em class="serif">{data.hero_titulo_linea2}</em></span>
+        <span>{linea3Before} <span class="gold">{golden}</span></span>
+      </h1>
+      <p>{data.hero_parrafo}</p>
+      <div class="hero-actions">
+        <a href="#coleccion" class="btn btn-gold">Ver Colección <span class="arrow">→</span></a>
+        <a href={waHref} target="_blank" rel="noopener" class="btn btn-ghost">Pedir por WhatsApp <span class="arrow">→</span></a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-jersey-wrap">
+        <img src={data.hero_jersey_foto} alt="Camiseta destacada" class="hero-jersey" />
+      </div>
+      <div class="hero-stat s1">
+        <div class="hero-stat-num">{data.hero_stat_1_numero}</div>
+        <div class="hero-stat-lbl">{data.hero_stat_1_etiqueta}</div>
+      </div>
+      <div class="hero-stat s2">
+        <div class="hero-stat-num">{data.hero_stat_2_numero}</div>
+        <div class="hero-stat-lbl">{data.hero_stat_2_etiqueta}</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
