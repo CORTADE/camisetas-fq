@@ -1,0 +1,48 @@
+---
+import type { CollectionEntry } from 'astro:content';
+type Camiseta = CollectionEntry<'camisetas'>;
+type Contacto = Extract<CollectionEntry<'settings'>['data'], { tipo: 'contacto' }>;
+
+export interface Props {
+  camisetas: Camiseta[];
+  templates: Contacto;
+  whatsapp: string;
+}
+
+const { camisetas, templates, whatsapp } = Astro.props;
+
+// Serialize compact data for the client-side script
+const itemsData = camisetas.map(c => ({
+  slug: c.slug,
+  titulo: c.data.titulo,
+  equipo: c.data.equipo,
+  precio: c.data.precio,
+  foto: c.data.foto,
+}));
+---
+
+<div class="fav-overlay" id="favOverlay"></div>
+<aside
+  class="fav-drawer"
+  id="favDrawer"
+  aria-hidden="true"
+  data-whatsapp={whatsapp}
+  data-template={templates.template_favoritos}
+  data-items={JSON.stringify(itemsData)}
+>
+  <div class="fav-header">
+    <div class="fav-title" id="favTitle">TUS FAVORITOS</div>
+    <button class="fav-close" id="favClose" type="button" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="fav-list" id="favList"></div>
+  <div class="fav-empty" id="favEmpty">
+    <div class="fav-empty-icon">♡</div>
+    <div class="fav-empty-title">AÚN NO HAS GUARDADO CAMISETAS</div>
+    <div class="fav-empty-text">Explora la colección y pulsa el ♡ en las que más te gusten para tenerlas siempre a mano.</div>
+    <a href="#coleccion" class="btn btn-gold" id="favEmptyCta">Ver colección →</a>
+  </div>
+  <div class="fav-footer" id="favFooter" hidden>
+    <button class="fav-cta-wa" id="favCta" type="button">◉ PEDIR TODAS POR WHATSAPP</button>
+    <button class="fav-clear" id="favClear" type="button">Vaciar lista</button>
+  </div>
+</aside>
