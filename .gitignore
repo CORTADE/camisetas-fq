@@ -7,3 +7,8 @@ dist/
 .vscode/
 .idea/
 *.log
+
+# Original reference HTML — visual source of truth, must NEVER be tracked or modified.
+# All future work goes through src/ and public/, never into this file.
+index.html
+.claude/
