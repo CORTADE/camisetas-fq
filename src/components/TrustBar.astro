@@ -1,0 +1,14 @@
+---
+export interface Props { items: { icono: string; titulo: string; subtitulo: string }[] }
+const { items } = Astro.props;
+---
+<div class="trust-bar">
+  <div class="trust-inner">
+    {items.map(item => (
+      <div class="trust-item">
+        <div class="trust-icon">{item.icono}</div>
+        <div class="trust-text"><strong>{item.titulo}</strong><span>{item.subtitulo}</span></div>
+      </div>
+    ))}
+  </div>
+</div>
