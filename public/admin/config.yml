@@ -1,0 +1,163 @@
+backend:
+  name: github
+  repo: CORTADE/camisetas-fq
+  branch: main
+  base_url: https://sveltia-cms-auth.netlify.app
+  auth_endpoint: oauth
+
+media_folder: public/uploads
+public_folder: /uploads
+
+i18n:
+  structure: single_file
+  locales: [es]
+  default_locale: es
+
+collections:
+  - name: camisetas
+    label: "🎽 Camisetas"
+    label_singular: "Camiseta"
+    folder: src/content/camisetas
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: yaml-frontmatter
+    fields:
+      - { name: titulo, label: "Título", widget: string }
+      - { name: equipo, label: "Equipo / subtítulo", widget: string }
+      - { name: eyebrow, label: "Eyebrow (competición)", widget: string }
+      - { name: foto, label: "Foto principal", widget: image }
+      - { name: precio, label: "Precio (€)", widget: number, value_type: int, min: 1 }
+      - { name: precio_anterior, label: "Precio anterior (€) — opcional", widget: number, required: false, value_type: int }
+      - name: badge
+        label: "Badge (etiqueta sobre la foto)"
+        widget: object
+        required: false
+        fields:
+          - { name: texto, label: "Texto", widget: string, hint: 'Ej: DÉCIMA, VINTAGE, ÚLTIMA, NUEVA' }
+          - { name: color, label: "Color", widget: select, options: [{label: "Dorado", value: gold}, {label: "Rojo vintage", value: red-vintage}, {label: "Naranja última", value: orange-last}], default: gold }
+      - { name: stock, label: "Hay stock", widget: boolean, default: true }
+      - { name: tallas, label: "Tallas disponibles", widget: select, multiple: true, options: [S, M, L, XL, XXL], default: [S, M, L, XL, XXL] }
+      - { name: destacada, label: "Destacar en home", widget: boolean, default: false }
+      - { name: orden, label: "Orden (menor = primero)", widget: number, value_type: int, default: 100 }
+      - { name: body, label: "Descripción larga (opcional)", widget: markdown, required: false }
+
+  - name: sorteos
+    label: "🎰 Sorteos"
+    label_singular: "Sorteo"
+    folder: src/content/sorteos
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: yaml-frontmatter
+    fields:
+      - { name: titulo, label: "Título", widget: string }
+      - { name: eyebrow, label: "Eyebrow", widget: string }
+      - { name: descripcion, label: "Descripción", widget: text }
+      - { name: imagen_fondo, label: "Imagen de fondo", widget: image }
+      - { name: precio_numero, label: "Precio por número (€)", widget: number, value_type: float, min: 0.5, default: 1 }
+      - { name: premio_descripcion, label: "Premio (descripción)", widget: string }
+      - name: estado
+        label: "Estado"
+        widget: select
+        options:
+          - { label: "📝 Borrador (no se muestra)", value: borrador }
+          - { label: "🟢 Activo (sólo uno a la vez)", value: activo }
+          - { label: "🏁 Finalizado", value: finalizado }
+        default: borrador
+        hint: "Recuerda: solo UN sorteo puede estar activo. Si marcas dos, sólo se muestra uno."
+      - name: tipo_finalizacion
+        label: "Cómo termina"
+        widget: select
+        options:
+          - { label: "Por fecha límite", value: por_fecha }
+          - { label: "Al completar los 100 números", value: por_completarse }
+          - { label: "Por fecha O al completarse", value: por_fecha_o_completarse }
+      - { name: fecha_limite, label: "Fecha límite", widget: datetime, required: false, hint: "Obligatorio si el tipo incluye fecha" }
+      - { name: mensaje_whatsapp_custom, label: "Mensaje WhatsApp personalizado (opcional)", widget: text, required: false, hint: "Vacío = usa el global de Contacto. Variables: {numeros}, {cantidad_texto}, {total}, {titulo_sorteo}, {precio}" }
+      - name: vendidos
+        label: "Números vendidos"
+        label_singular: "Venta"
+        widget: list
+        required: false
+        hint: "Sólo añade los vendidos. El resto son automáticamente 'disponibles'."
+        fields:
+          - { name: numero, label: "Número (00-99)", widget: string, pattern: ['^\d{2}$', 'Dos dígitos'] }
+          - { name: comprador, label: "Nombre del comprador", widget: string }
+      - name: reservados
+        label: "Números reservados (pendientes de pago)"
+        widget: list
+        required: false
+        field: { name: numero, label: "Número (00-99)", widget: string, pattern: ['^\d{2}$', 'Dos dígitos'] }
+      - { name: mostrar_timeline_vendidos, label: "Mostrar lista de últimos pillados en directo", widget: boolean, default: true, hint: "Si desactivado, no se muestra la sección 'EN DIRECTO · ÚLTIMOS PILLADOS' para este sorteo." }
+      - { name: ganador_nombre, label: "Ganador — Nombre (sólo si finalizado)", widget: string, required: false }
+      - { name: ganador_numero, label: "Ganador — Número (sólo si finalizado)", widget: string, required: false, pattern: ['^\d{2}$', 'Dos dígitos'] }
+      - { name: ganador_foto, label: "Ganador — Foto (opcional)", widget: image, required: false }
+
+  - name: settings
+    label: "⚙️ Configuración"
+    files:
+      - name: inicio
+        label: "Página de inicio"
+        file: src/content/settings/inicio.md
+        format: yaml-frontmatter
+        fields:
+          - { name: tipo, widget: hidden, default: inicio }
+          - { name: hero_eyebrow, label: "Hero — Eyebrow", widget: string }
+          - { name: hero_titulo_linea1, label: "Hero — Línea 1", widget: string }
+          - { name: hero_titulo_linea2, label: "Hero — Línea 2 (cursiva)", widget: string }
+          - { name: hero_titulo_linea3, label: "Hero — Línea 3", widget: string }
+          - { name: hero_titulo_linea3_palabra_dorada, label: "Hero — Palabra dorada de la línea 3", widget: string }
+          - { name: hero_parrafo, label: "Hero — Párrafo", widget: text }
+          - { name: hero_jersey_foto, label: "Hero — Camiseta que flota", widget: image }
+          - { name: hero_stat_1_numero, label: "Stat 1 — Número", widget: string, hint: 'Ej: "+500"' }
+          - { name: hero_stat_1_etiqueta, label: "Stat 1 — Etiqueta", widget: string, hint: 'Ej: "Clientes"' }
+          - { name: hero_stat_2_numero, label: "Stat 2 — Número", widget: string, hint: 'Ej: "+1.2K"' }
+          - { name: hero_stat_2_etiqueta, label: "Stat 2 — Etiqueta", widget: string, hint: 'Ej: "Camisetas"' }
+          - { name: marquee, label: "Marquee superior — Mensajes", widget: list, field: { name: mensaje, widget: string } }
+          - { name: sorteo_seccion_visible, label: "Mostrar sección de sorteos en la web", widget: boolean, default: true, hint: "Si lo desactivas, la sección Sorteo entera (incluido 'Sorteos anteriores') desaparece de la home, aunque haya datos guardados." }
+          - name: trust_bar
+            label: "Trust bar (4 items)"
+            widget: list
+            min: 4
+            max: 4
+            fields:
+              - { name: icono, widget: string }
+              - { name: titulo, widget: string }
+              - { name: subtitulo, widget: string }
+          - { name: cinematic_titulo_linea1, label: "Banner cinemático — Línea 1", widget: string }
+          - { name: cinematic_titulo_linea2, label: "Banner cinemático — Línea 2", widget: string }
+          - { name: cinematic_subtitulo, label: "Banner cinemático — Subtítulo", widget: text }
+          - { name: cinematic_imagen, label: "Banner cinemático — Imagen de fondo", widget: image }
+          - { name: cinematic_cta_texto, label: "Banner cinemático — Texto botón", widget: string, default: "Pedir mi camiseta" }
+          - name: steps
+            label: "Cómo comprar (3 pasos)"
+            widget: list
+            min: 3
+            max: 3
+            fields:
+              - { name: numero, widget: string }
+              - { name: titulo, widget: string }
+              - { name: texto, widget: text }
+          - { name: personalizer_titulo, label: "Personalizador — Título", widget: string }
+          - { name: personalizer_nombre_default, label: "Personalizador — Nombre por defecto", widget: string, default: "CAMPEÓN" }
+          - { name: personalizer_dorsal_default, label: "Personalizador — Dorsal por defecto", widget: string, default: "10" }
+          - { name: personalizer_precio_extra, label: "Personalizador — Precio extra (€)", widget: number, value_type: int, default: 12 }
+
+      - name: contacto
+        label: "Contacto y plantillas WhatsApp"
+        file: src/content/settings/contacto.md
+        format: yaml-frontmatter
+        fields:
+          - { name: tipo, widget: hidden, default: contacto }
+          - { name: whatsapp, label: "Número WhatsApp", widget: string, pattern: ['^\d{8,15}$', 'Solo dígitos, formato internacional sin "+"'], hint: 'Ej: 34600000000' }
+          - { name: instagram, label: "Usuario Instagram", widget: string, hint: "Sin @" }
+          - { name: email, label: "Email", widget: string, required: false, hint: "Vacío hasta tener uno real. Si vacío, no se muestra en el footer." }
+          - { name: tiktok, label: "Usuario TikTok (opcional)", widget: string, required: false }
+          - { name: footer_descripcion, label: "Footer — Descripción de la marca", widget: text }
+          - { name: footer_anio, label: "Footer — Año copyright", widget: number, value_type: int }
+          - { name: template_camiseta, label: "Plantilla — Pedir camiseta", widget: text, hint: "Variables: {nombre}, {equipo}, {precio}, {talla}" }
+          - { name: template_personalizacion, label: "Plantilla — Personalización", widget: text, hint: "Variables: {nombre}, {dorsal}, {talla}" }
+          - { name: template_sorteo, label: "Plantilla — Reservar nº sorteo", widget: text, hint: "Variables: {numeros} (lista #07, #22), {cantidad_texto} (el número/los N números), {total}, {titulo_sorteo}, {precio}. Legacy: {numero} = primero del array sin #." }
+          - { name: template_favoritos, label: "Plantilla — Pedir favoritos", widget: text, hint: "Variable: {lista}" }
+          - { name: template_generico, label: "Plantilla — Mensaje genérico (FAB)", widget: string }
