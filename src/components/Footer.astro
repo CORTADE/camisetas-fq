@@ -1,0 +1,298 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { buildWaUrl } from '../lib/whatsapp';
+
+type Contacto = Extract<CollectionEntry<'settings'>['data'], { tipo: 'contacto' }>;
+
+export interface Props {
+  contacto: Contacto;
+}
+
+const { contacto } = Astro.props;
+const waHref = buildWaUrl(contacto.whatsapp, contacto.template_generico);
+const igHref = `https://instagram.com/${contacto.instagram}`;
+---
+
+<footer class="footer" id="contacto">
+  <div class="footer-cta reveal">
+    <h3>¿Buscas una <em>camiseta especial</em>?</h3>
+    <p>Habla directamente con nosotros por WhatsApp. Respuesta en minutos y atención personal de quien sabe de camisetas.</p>
+    <a href={waHref} target="_blank" rel="noopener" class="btn-wa">
+      <span class="wa-icon">◉</span> ESCRIBIR POR WHATSAPP
+    </a>
+  </div>
+
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="logo">
+        <div class="logo-shield"></div>
+        <div class="logo-text">CAMISETAS <b>FQ</b></div>
+      </a>
+      <p>{contacto.footer_descripcion}</p>
+      <div class="socials">
+        <a href={igHref} target="_blank" rel="noopener" class="social" aria-label="Instagram">ⓘ</a>
+        <a href={waHref} target="_blank" rel="noopener" class="social" aria-label="WhatsApp">◉</a>
+        {contacto.tiktok && <a href={`https://tiktok.com/@${contacto.tiktok}`} target="_blank" rel="noopener" class="social" aria-label="TikTok">▶</a>}
+        {contacto.email && <a href={`mailto:${contacto.email}`} class="social" aria-label="Email">✉</a>}
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>NAVEGAR</h4>
+      <ul>
+        <li><a href="#coleccion">→ Colección</a></li>
+        <li><a href="#sorteo">→ Sorteo activo</a></li>
+        <li><a href="#personaliza">→ Personalizar</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>AYUDA</h4>
+      <ul>
+        <li><a href={waHref} target="_blank" rel="noopener">→ Guía de tallas</a></li>
+        <li><a href={waHref} target="_blank" rel="noopener">→ Envíos</a></li>
+        <li><a href={waHref} target="_blank" rel="noopener">→ Cómo pedir</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>CONTACTO</h4>
+      <ul>
+        <li><a href={waHref} target="_blank" rel="noopener">→ WhatsApp directo</a></li>
+        <li><a href={igHref} target="_blank" rel="noopener">→ @{contacto.instagram}</a></li>
+        {contacto.email && <li><a href={`mailto:${contacto.email}`}>→ Email</a></li>}
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div>© {contacto.footer_anio} <span class="gold">Camisetas FQ</span> · Futbol Quality. Todos los derechos reservados.</div>
+    <div>Diseño cinemático · Hecho con pasión por el fútbol</div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+    color: #fff;
+    padding: 4rem 2rem;
+    border-top: 1px solid rgba(212, 175, 55, 0.3);
+    margin-top: 6rem;
+  }
+
+  .footer-cta {
+    max-width: 600px;
+    margin: 0 auto 4rem;
+    text-align: center;
+    padding: 3rem;
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    animation: slideInUp 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  .footer-cta h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .footer-cta em {
+    color: #d4af37;
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .footer-cta p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .btn-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, #25d366 0%, #20ba5a 100%);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .btn-wa:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+  }
+
+  .wa-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+    .footer-brand {
+      grid-column: 1;
+    }
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: #fff;
+  }
+
+  .logo-shield {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #d4af37 0%, #f0e68c 100%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  .logo-text {
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+  }
+
+  .logo-text b {
+    color: #d4af37;
+  }
+
+  .footer-brand > p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .socials {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 50%;
+    text-decoration: none;
+    color: #d4af37;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+  }
+
+  .social:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: rgba(212, 175, 55, 0.6);
+    transform: translateY(-2px);
+  }
+
+  .footer-col h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #d4af37;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-col li {
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-col a {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .footer-col a:hover {
+    color: #d4af37;
+    padding-left: 2px;
+  }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .footer-bottom > div:first-child {
+    margin-bottom: 0.5rem;
+  }
+
+  .gold {
+    color: #d4af37;
+  }
+
+  @media (max-width: 768px) {
+    .footer {
+      padding: 2rem 1rem;
+      margin-top: 4rem;
+    }
+
+    .footer-cta {
+      padding: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-grid {
+      gap: 2rem;
+    }
+
+    .footer-col h4 {
+      font-size: 0.8rem;
+    }
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
