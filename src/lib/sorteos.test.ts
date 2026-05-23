@@ -58,7 +58,9 @@ describe('validateUnicoActivo', () => {
     ];
     const result = validateUnicoActivo(list);
     expect(result.ok).toBe(false);
-    expect(result.activos).toEqual(['x', 'y']);
+    if (!result.ok) {
+      expect(result.activos).toEqual(['x', 'y']);
+    }
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
