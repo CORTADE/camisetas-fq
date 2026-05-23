@@ -317,6 +317,12 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 }
 .product-cta:hover{color:var(--gold);gap:14px}
 
+/* ===================== PRODUCT — badge color variants ===================== */
+.product-badge.gold { background: var(--gold); color: #000; }
+.product-badge.red-vintage { background: var(--red); color: #fff; }
+.product-badge.orange-last { background: #ff7a1a; color: #fff; }
+.product-wishlist.is-fav { color: var(--gold); }
+
 /* ===================== CINEMATIC BANNER ===================== */
 .cinematic{
   height:60vh;min-height:480px;position:relative;overflow:hidden;

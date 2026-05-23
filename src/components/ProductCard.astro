@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { renderTemplate, buildWaUrl } from '../lib/whatsapp';
+type Camiseta = CollectionEntry<'camisetas'>;
+type Contacto = Extract<CollectionEntry<'settings'>['data'], { tipo: 'contacto' }>;
+export interface Props { camiseta: Camiseta; templates: Contacto; whatsapp: string }
+const { camiseta, templates, whatsapp } = Astro.props;
+const d = camiseta.data;
+const message = renderTemplate(templates.template_camiseta, {
+  nombre: d.titulo,
+  equipo: d.equipo,
+  precio: d.precio,
+  talla: 'a confirmar',
+});
+const waHref = buildWaUrl(whatsapp, message);
+const badgeClass = d.badge ? `product-badge ${d.badge.color}` : '';
+---
+<article class="product reveal" data-slug={camiseta.slug}>
+  <div class="product-img-wrap">
+    <img src={d.foto} class="product-img" alt={d.titulo} loading="lazy" />
+    {d.badge && <div class={badgeClass}>{d.badge.texto}</div>}
+    <button class="product-wishlist" type="button" aria-label="Añadir a favoritos" data-fav-toggle={camiseta.slug}>♡</button>
+  </div>
+  <div class="product-info">
+    <div class="product-meta">{d.eyebrow}</div>
+    <h3 class="product-name">{d.titulo}</h3>
+    <div class="product-team">{d.equipo}</div>
+    <div class="product-bottom">
+      <div class="product-price">
+        {d.precio_anterior && <small>{d.precio_anterior}€</small>}
+        {d.precio}€
+      </div>
+      <a class="product-cta" href={waHref} target="_blank" rel="noopener">Pedir →</a>
+    </div>
+  </div>
+</article>
