@@ -8,13 +8,9 @@ precio_anterior: 25
 badge:
   texto: DÉCIMA
   color: gold
-stock: true
+stock: false
 tallas:
   - S
-  - M
-  - L
-  - XL
-  - XXL
 destacada: true
 orden: 10
 ---
