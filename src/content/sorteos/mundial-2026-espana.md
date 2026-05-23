@@ -11,10 +11,7 @@ fecha_limite: 2026-07-15T23:59:00
 mensaje_whatsapp_custom: ''
 vendidos: []
 reservados:
-  - '05'
-  - '17'
-  - '40'
-  - '69'
   - '83'
 mostrar_timeline_vendidos: true
+ganador_nombre: ''
 ---
