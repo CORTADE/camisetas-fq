@@ -6,6 +6,67 @@
 
 ---
 
+## 🐛 BUG-3 (P0 · CRITICAL) · Schema rejects `precio_anterior: null` written by Sveltia → build fails
+
+**Severity:** P0 — every edit to a camiseta from `/admin` that leaves `precio_anterior` empty breaks the production deploy. Already caused **5 consecutive failed Netlify deploys**.
+
+### Symptoms
+- Editor opens a camiseta in `/admin`, edits any field, leaves `precio_anterior` empty, hits Save.
+- Sveltia writes `precio_anterior: null` to the `.md` frontmatter (instead of omitting the key).
+- Sveltia commits + pushes to GitHub → Netlify triggers build.
+- Build fails with:
+  ```
+  InvalidContentEntryDataError: Expected type 'number', received 'null'
+  ```
+- Site stays on the previous successful deploy. No data lost, but new edits don't go live.
+
+### Current workaround
+Editor manually puts `0` or a real number in `precio_anterior` to unblock the deploy. Fragile — easy to forget.
+
+### Root cause
+The current schema in `src/content/config.ts` declares:
+```ts
+precio_anterior: z.number().int().positive().optional(),
+```
+`.optional()` accepts `undefined` (missing key) but NOT `null` (explicit null value). Sveltia writes `null` when a numeric field is cleared, not omits.
+
+### Fix
+Two coordinated changes:
+
+1. **`src/content/config.ts`** — accept null:
+   ```ts
+   precio_anterior: z.number().int().positive().nullable().optional(),
+   ```
+   This accepts `undefined`, `null`, or a positive int. (Verify: `z.number().int().positive().nullable()` doesn't validate `0`. We want to also allow `0` to mean "no discount". So consider:
+   `precio_anterior: z.union([z.number().int().positive(), z.literal(0), z.null()]).optional()` — but cleanest is just `.nullable().optional()` and treat `null`/missing as "no discount" in the component.)
+
+2. **`src/components/ProductCard.astro`** — guard the discount badge render:
+   ```astro
+   {d.precio_anterior && d.precio_anterior > 0 && <small>{d.precio_anterior}€</small>}
+   ```
+   (Currently the conditional is `{d.precio_anterior && ...}` which is already truthy-guarded — verify it doesn't crash on `null` at type-check time. Likely just needs a type assertion adjustment.)
+
+3. **Add a unit test** (in a new `src/content/schema.test.ts` or extend `whatsapp.test.ts`):
+   - Schema accepts `{ precio: 50, precio_anterior: null }` without error
+   - Schema accepts `{ precio: 50 }` (no precio_anterior key) without error
+   - Schema accepts `{ precio: 50, precio_anterior: 60 }` (with valid value)
+
+### Reproduction
+1. Open https://camisetas-fq.netlify.app/admin → sign in
+2. Open any camiseta (e.g. Final Lisboa 2014)
+3. Clear the "Precio anterior" field
+4. Click Save
+5. Wait ~90s
+6. Check Netlify deploys page → latest deploy shows red "Failed" with the InvalidContentEntryDataError above
+
+### Why this is P0
+- Editor flow is the primary value proposition of this project (CMS for non-programmer).
+- Every silent failure erodes trust in the system.
+- The fix is small and surgical (~5 lines of code + 1 test).
+- **Recommended to fix this BEFORE any other v1.1 work.**
+
+---
+
 ## 🐛 BUG-1 (P1) · "PEDIR TODAS POR WHATSAPP" button in favorites drawer does not respond to click
 
 **Severity:** P1 — breaks the main flow for ordering multiple favorited shirts in a single WhatsApp message.
@@ -52,6 +113,72 @@
 
 ### Workaround (none)
 The user can still order items individually by clicking the "Pedir →" on each product card. The bulk-favorites flow is non-functional.
+
+---
+
+## 🐛 BUG-4 (P1) · Sorteo schema enforces `ganador_numero` pattern even when sorteo is not finalized
+
+**Severity:** P1 — blocks editing of active sorteos from `/admin`. Workaround exists but is awkward.
+
+### Symptoms
+- Editor opens the active sorteo (`mundial-2026-espana`, `estado: activo`) in `/admin`.
+- Tries to save any change.
+- The CMS validation rejects with: `"Dos dígitos"` on the "Ganador — Número (sólo si finalizado)" field, even though:
+  - The field is empty (no ganador yet)
+  - The sorteo's `estado` is `activo`, not `finalizado` — so a ganador shouldn't be required at all
+
+### Current workaround
+Editor types `01` (or any 2-digit string) into the ganador number to pass validation, then has to remember to clear it when the sorteo actually finalizes. Fragile.
+
+### Root cause
+In `public/admin/config.yml`:
+```yaml
+- { name: ganador_numero, label: "Ganador — Número (sólo si finalizado)", widget: string, required: false, pattern: ['^\d{2}$', 'Dos dígitos'] }
+```
+Sveltia applies the `pattern` validation to ANY non-empty string. `required: false` only means the field can be empty/missing — but it doesn't disable the pattern check. The issue: Sveltia evidently treats the editor leaving the field empty as still triggering the pattern check (or has some normalization that converts empty input to a string that fails the regex).
+
+The Zod schema in `src/content/config.ts` is actually fine:
+```ts
+ganador_numero: z.string().regex(/^\d{2}$/).optional(),
+```
+`.optional()` correctly skips validation when undefined. The build-time validation does NOT fail; the runtime-in-CMS validation does.
+
+### Fix (two options)
+
+**Option A — relax the pattern to accept empty:**
+In `public/admin/config.yml`:
+```yaml
+- { name: ganador_numero, label: "Ganador — Número (sólo si finalizado)", widget: string, required: false, pattern: ['^(\d{2})?$', 'Dos dígitos o vacío'] }
+```
+The `(\d{2})?` makes the 2-digit group optional. Simple, low-risk.
+
+Apply the same fix to `ganador_nombre` if it has a similar constraint (currently none, but worth checking).
+
+**Option B — conditional field visibility (more involved):**
+Use Sveltia's `condition` widget option (if supported in this version) to only show ganador fields when `estado === 'finalizado'`. This would also visually hide the irrelevant fields, improving editor UX. Requires verifying Sveltia syntax for conditional fields.
+
+**Recommended:** start with Option A (1-line change, ships the fix), then consider Option B as polish in v1.2.
+
+### Also update the Zod schema's `superRefine`
+The existing `superRefine` only triggers if `estado === 'finalizado'` AND `ganador_nombre`/`ganador_numero` are MISSING. It doesn't reject a stray ganador value on a non-finalized sorteo (which is the workaround state). Consider tightening:
+```ts
+if (data.estado !== 'finalizado' && (data.ganador_nombre || data.ganador_numero)) {
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    message: 'Solo se debe rellenar ganador cuando el sorteo está finalizado',
+    path: ['ganador_nombre'],
+  });
+}
+```
+This would catch leftover "01" values from the workaround flow once Option A is in place.
+
+### Reproduction
+1. `/admin` → 🎰 Sorteos → mundial-2026-espana
+2. Verify `estado` is `Activo`, ganador fields are empty
+3. Change any field (e.g. add a vendido)
+4. Click Save
+5. **Expected:** save succeeds, commit pushed
+6. **Actual:** red validation error on "Ganador — Número" field, save blocked
 
 ---
 
@@ -117,13 +244,20 @@ The user can still order items individually by clicking the "Pedir →" on each 
 
 ## Suggested approach for v1.1 session
 
-1. **Fix BUG-1 first** — it's a real functional bug, P1.
-2. **Then RESPONSIVE-3** (most visible on landing — hero is first impression).
-3. **Then RESPONSIVE-1** (tap collision is a UX papercut).
-4. **Then RESPONSIVE-2 and RESPONSIVE-4** (polish).
-5. Verify on real devices if possible (or via Chrome DevTools device emulation at 320px, 375px, 414px widths).
-6. Commit each fix separately for easy review/rollback.
-7. After all fixes pass visual review, tag `v1.1.0`.
+Priority order (P0 → P1 → P2):
+
+1. **BUG-3 first (P0)** — unblocks editor flow. Until this is fixed, every `precio_anterior` clear from `/admin` breaks the build. Small surgical fix, ~5 lines + 1 unit test.
+2. **BUG-4 (P1)** — unblocks editing of active sorteos without the "01 workaround". Tiny `config.yml` regex tweak.
+3. **BUG-1 (P1)** — functional bug in favorites drawer button. Bulk-favorites WhatsApp message is currently broken.
+4. **RESPONSIVE-3 (P2)** — hero on mobile, first impression.
+5. **RESPONSIVE-1 (P2)** — FAB collision with product CTA.
+6. **RESPONSIVE-2 and RESPONSIVE-4 (P2)** — polish.
+
+After all fixes:
+- Verify the bug fixes with their reproductions (BUG-3 by actually clearing a precio_anterior from `/admin` and watching the deploy succeed; BUG-4 by saving an active sorteo without ganador; BUG-1 by clicking the favorites drawer button).
+- Verify responsive fixes on real devices if possible (or Chrome DevTools at 320 / 375 / 414 px widths).
+- Commit each fix separately for easy review/rollback.
+- After all fixes pass visual review, tag `v1.1.0`.
 
 ## Notes
 
