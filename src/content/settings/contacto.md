@@ -14,8 +14,10 @@ template_personalizacion: |
   ¡Hola! Quiero personalizar una camiseta con nombre "{nombre}" y dorsal {dorsal} (talla {talla}).
   ¿Qué camiseta me recomendáis?
 template_sorteo: |
-  ¡Hola! Quiero reservar el número {numero} del sorteo "{titulo_sorteo}" ({precio}€).
-  ¿Sigue disponible?
+  ¡Hola! Quiero reservar {cantidad_texto} del sorteo "{titulo_sorteo}":
+  {numeros}
+  Total: {total}€
+  ¿Siguen disponibles?
 template_favoritos: |
   ¡Hola! Me interesan estas camisetas de mi lista de favoritos:
   {lista}

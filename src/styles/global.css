@@ -849,3 +849,27 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 }
 .fav-cta-wa:hover { background: var(--wa-dark); color: #fff; }
 .fav-clear { color: var(--muted); font-size: 12px; text-align: center; text-decoration: underline; }
+
+/* ===================== SORTEO — multi-select CTA extras ===================== */
+.grid-cta-total {
+  font-family: var(--font-display);
+  letter-spacing: .15em;
+  font-size: 14px;
+  color: var(--gold);
+  margin-top: 6px;
+}
+.grid-cta-clear {
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: underline;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-self: flex-end;
+}
+.grid-cta-clear:hover { color: var(--cream); }
+.grid-cta-wrap:not(.show) .grid-cta-clear { display: none; }
+@media (max-width: 768px) {
+  .grid-cta-clear { align-self: center; }
+}
