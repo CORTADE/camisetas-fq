@@ -1,6 +1,6 @@
 ---
 tipo: contacto
-whatsapp: "34600000000"
+whatsapp: "34674614325"
 instagram: "camisetas_fq19"
 email: ""
 tiktok: ""
