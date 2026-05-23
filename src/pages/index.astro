@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+import Loader from '../components/Loader.astro';
+import TopMarquee from '../components/TopMarquee.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import TrustBar from '../components/TrustBar.astro';
+import Coleccion from '../components/Coleccion.astro';
+import CinematicBanner from '../components/CinematicBanner.astro';
+import SorteoSection from '../components/SorteoSection.astro';
+import Steps from '../components/Steps.astro';
+import Personalizer from '../components/Personalizer.astro';
+import Footer from '../components/Footer.astro';
+import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
+import FavoritosDrawer from '../components/FavoritosDrawer.astro';
+import { getSorteoActivo, getSorteosFinalizados } from '../lib/sorteos';
+
+const inicioEntry = await getEntry('settings', 'inicio');
+if (!inicioEntry) throw new Error('settings/inicio.md no encontrado');
+const inicio = inicioEntry.data;
+if (inicio.tipo !== 'inicio') throw new Error('settings/inicio.md tiene tipo incorrecto');
+const contactoEntry = await getEntry('settings', 'contacto');
+if (!contactoEntry) throw new Error('settings/contacto.md no encontrado');
+const contacto = contactoEntry.data;
+if (contacto.tipo !== 'contacto') throw new Error('settings/contacto.md tiene tipo incorrecto');
+const camisetas = await getCollection('camisetas');
+const sorteos = await getCollection('sorteos');
+const sorteoActivo = getSorteoActivo(sorteos);
+const sorteosFinalizados = getSorteosFinalizados(sorteos);
+---
+<BaseLayout>
+  <Loader />
+  <TopMarquee mensajes={inicio.marquee} />
+  <Nav />
+  <Hero data={inicio} whatsapp={contacto.whatsapp} templateGenerico={contacto.template_generico} />
+  <TrustBar items={inicio.trust_bar} />
+  <Coleccion camisetas={camisetas} templates={contacto} whatsapp={contacto.whatsapp} />
+  <CinematicBanner data={inicio} whatsapp={contacto.whatsapp} templateGenerico={contacto.template_generico} />
+  <SorteoSection sorteo={sorteoActivo} finalizados={sorteosFinalizados} templates={contacto} whatsapp={contacto.whatsapp} seccionVisible={inicio.sorteo_seccion_visible} />
+  <Steps steps={inicio.steps} />
+  <Personalizer data={inicio} templates={contacto} whatsapp={contacto.whatsapp} />
+  <Footer contacto={contacto} />
+
+  <Fragment slot="globals">
+    <FloatingWhatsApp whatsapp={contacto.whatsapp} templateGenerico={contacto.template_generico} />
+    <FavoritosDrawer camisetas={camisetas} templates={contacto} whatsapp={contacto.whatsapp} />
+  </Fragment>
+</BaseLayout>

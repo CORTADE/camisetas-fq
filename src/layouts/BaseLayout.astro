@@ -19,11 +19,18 @@ const {
 </head>
 <body>
   <slot />
+  <slot name="globals" />
   <script>
     window.addEventListener('load', () => {
       const loader = document.getElementById('loader');
       if (loader) setTimeout(() => loader.classList.add('gone'), 1400);
     });
   </script>
+  <script src="/scripts/reveal.js" defer></script>
+  <script src="/scripts/nav-mobile.js" defer></script>
+  <script src="/scripts/countdown.js" defer></script>
+  <script src="/scripts/sorteo-grid.js" defer></script>
+  <script src="/scripts/personalizer.js" defer></script>
+  <script src="/scripts/favoritos.js" defer></script>
 </body>
 </html>
