@@ -10,8 +10,8 @@ tipo_finalizacion: por_fecha_o_completarse
 fecha_limite: 2026-07-15T23:59:00
 mensaje_whatsapp_custom: ''
 vendidos: []
-reservados:
-  - '83'
-mostrar_timeline_vendidos: true
+reservados: []
+mostrar_timeline_vendidos: false
 ganador_nombre: ''
+ganador_numero: '01'
 ---
