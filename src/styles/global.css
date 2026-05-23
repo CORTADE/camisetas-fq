@@ -773,3 +773,37 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
   .logo-text { font-size: 16px; }
 }
 
+/* ===================== SORTEO — progress bar ===================== */
+.sorteo-progress { margin: 24px 0; }
+.sorteo-progress-track {
+  height: 8px; background: rgba(255,255,255,.08);
+  border-radius: 4px; overflow: hidden;
+}
+.sorteo-progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+  transition: width .8s ease;
+}
+.sorteo-progress-label {
+  display: flex; justify-content: space-between;
+  font-family: var(--font-display); letter-spacing: .15em; font-size: 11px;
+  color: var(--gold); margin-bottom: 8px;
+}
+
+/* ===================== SORTEOS ANTERIORES ===================== */
+.sorteos-anteriores { margin-top: 80px; padding: 0 20px; }
+.sorteos-anteriores h3 {
+  font-family: var(--font-display); letter-spacing: .2em; font-size: 18px;
+  color: var(--cream); text-align: center; margin-bottom: 32px;
+}
+.sorteos-anteriores-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px; max-width: 1200px; margin: 0 auto;
+}
+.sorteo-anterior {
+  background: var(--bg-2); border: 1px solid var(--line); padding: 24px;
+  text-align: center;
+}
+.sorteo-anterior img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px; }
+.sorteo-anterior-num { font-family: var(--font-display); font-size: 32px; color: var(--gold); line-height: 1; }
+.sorteo-anterior-name { color: var(--cream); margin: 4px 0; }
+.sorteo-anterior-title { color: var(--muted); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }

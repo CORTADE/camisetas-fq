@@ -1,0 +1,20 @@
+---
+import type { CollectionEntry } from 'astro:content';
+export interface Props { sorteos: CollectionEntry<'sorteos'>[] }
+const { sorteos } = Astro.props;
+---
+{sorteos.length > 0 && (
+  <div class="sorteos-anteriores reveal">
+    <h3>SORTEOS ANTERIORES</h3>
+    <div class="sorteos-anteriores-grid">
+      {sorteos.map(s => (
+        <div class="sorteo-anterior">
+          {s.data.ganador_foto && <img src={s.data.ganador_foto} alt={s.data.ganador_nombre} />}
+          <div class="sorteo-anterior-num">#{s.data.ganador_numero}</div>
+          <div class="sorteo-anterior-name">{s.data.ganador_nombre}</div>
+          <div class="sorteo-anterior-title">{s.data.titulo}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
