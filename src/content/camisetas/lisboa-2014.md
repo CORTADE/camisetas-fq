@@ -11,6 +11,7 @@ badge:
 stock: false
 tallas:
   - S
+  - M
 destacada: true
 orden: 10
 ---
