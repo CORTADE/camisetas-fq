@@ -10,5 +10,6 @@ dist/
 
 # Original reference HTML — visual source of truth, must NEVER be tracked or modified.
 # All future work goes through src/ and public/, never into this file.
-index.html
+# Leading slash scopes this to the repo root only (so public/admin/index.html etc. are NOT ignored).
+/index.html
 .claude/
